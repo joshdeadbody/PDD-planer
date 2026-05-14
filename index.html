@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The RPA Blueprint</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Epilogue:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap');
+
+        :root {
+            --bg: #F8F7F4;
+            --surface: #FFFFFF;
+            --surface2: #FAFAF8;
+            --border: #E2E0DB;
+            --accent: #1B3A5C;
+            --accent2: #C8893A;
+            --text: #1A1A1A;
+            --muted: #6B6B6B;
+            --muted2: #8B8A85;
+            --danger: #C0392B;
+            --warning: #B7770D;
+            --success: #1E6B45;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            min-height: 100vh;
+            padding: 40px 24px 80px;
+        }
+
+        .wrapper {
+            max-width: 780px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 32px;
+            margin-bottom: 48px;
+        }
+
+        .label,
+        .project-field label,
+        .field label,
+        .check-label,
+        .hook-label,
+        .meta-label,
+        .api-key-label,
+        .stat-label,
+        .ai-subtitle,
+        .conf-label {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .label {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .label::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        h1 {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: clamp(32px, 5vw, 52px);
+            line-height: 1.1;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        h1 em {
+            font-style: normal;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 500px;
+        }
+
+        /* PROJECT NAME */
+        .project-field {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 20px 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .project-field label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .project-field input {
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 22px;
+            width: 100%;
+        }
+
+        .project-field input::placeholder {
+            color: var(--muted2);
+        }
+
+        /* PHASE */
+        .phase {
+            margin-bottom: 32px;
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .phase-number {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #FFFFFF;
+            background: var(--accent);
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .phase.complete .phase-number {
+            background: var(--success);
+        }
+
+        .phase-title-group {
+            flex: 1;
+        }
+
+        .phase-title {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--accent);
+            border-left: 3px solid var(--accent2);
+            padding-left: 12px;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .phase-desc {
+            font-size: 14px;
+            color: var(--muted);
+            padding-left: 15px;
+        }
+
+        .phase-toggle {
+            font-size: 18px;
+            color: var(--muted);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .phase.open .phase-toggle {
+            color: var(--accent);
+        }
+
+        .phase-body {
+            display: none;
+            padding-left: 40px;
+        }
+
+        .phase.open .phase-body {
+            display: block;
+        }
+
+        /* FIELDS & INPUTS */
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid #D0CEC9;
+            border-radius: 3px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        textarea {
+            background: var(--surface2);
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(27, 58, 92, 0.15);
+        }
+
+        textarea::placeholder,
+        input::placeholder {
+            color: var(--muted2);
+        }
+
+        /* CHECKLIST */
+        .checklist {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .checklist li:last-child {
+            border-bottom: none;
+        }
+
+        .check-box {
+            width: 18px;
+            height: 18px;
+            border: 1px solid #D0CEC9;
+            background: var(--surface);
+            border-radius: 3px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checklist li.checked .check-box {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .check-box::after {
+            content: '';
+            display: none;
+            width: 5px;
+            height: 9px;
+            border-right: 2px solid #FFFFFF;
+            border-bottom: 2px solid #FFFFFF;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+
+        .checklist li.checked .check-box::after {
+            display: block;
+        }
+
+        .check-text {
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .checklist li.checked .check-text {
+            color: var(--muted);
+        }
+
+        .check-label {
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        /* DIVIDER */
+        .phase-divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 32px;
+        }
+
+        /* HOOK SECTION */
+        .hook-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 28px;
+            margin-bottom: 40px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .hook-label {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hook-title {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--accent);
+            border-left: 3px solid var(--accent2);
+            padding-left: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar-wrap {
+            display: none;
+        }
+
+        /* ACTIONS */
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 14px 24px;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background: #142D47;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            border: 1px solid #D0CEC9;
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: #F0EFEA;
+        }
+
+        .btn-pdd {
+            background: var(--accent2);
+            color: #FFFFFF;
+        }
+
+        .btn-pdd:hover {
+            background: var(--warning);
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            display: flex;
+            padding: 16px 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border-right: 1px solid var(--border);
+            padding-right: 24px;
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-value {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 20px;
+            color: var(--accent);
+        }
+
+        .stat:first-child .stat-value {
+            color: var(--accent2);
+        }
+
+        /* META BAR */
+        .meta-bar {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .meta-label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .time-pills {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .time-pill {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 7px 14px;
+            border-radius: 3px;
+            border: 1px solid #D0CEC9;
+            color: var(--muted);
+            background: var(--surface);
+            cursor: pointer;
+        }
+
+        .time-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .time-pill.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #FFFFFF;
+        }
+
+        .save-controls {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .save-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .save-row select {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid #D0CEC9;
+            border-radius: 3px;
+            color: var(--text);
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 16px;
+            padding: 10px 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 3px;
+            border: 1px solid #D0CEC9;
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            border-color: var(--accent);
+            background: #F0EFEA;
+        }
+
+        /* CONFIDENCE SCORE */
+        .confidence-row {
+            margin-top: 20px;
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .conf-slider-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .conf-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            outline: none;
+        }
+
+        .conf-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            background: var(--accent);
+            cursor: pointer;
+        }
+
+        .conf-value {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--accent);
+            min-width: 24px;
+            text-align: right;
+        }
+
+        /* AI REVIEWER */
+        .ai-section {
+            margin-top: 48px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .ai-header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .ai-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .ai-title {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--accent);
+            border-left: 3px solid var(--accent2);
+            padding-left: 12px;
+        }
+
+        .btn-ai-start {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            background: var(--accent);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .btn-ai-start:hover {
+            background: #142D47;
+        }
+
+        .api-key-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .api-key-bar input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid #D0CEC9;
+            border-radius: 3px;
+            padding: 10px 14px;
+            padding-right: 32px;
+        }
+
+        .btn-clear-key {
+            position: absolute;
+            right: 32px;
+            background: none;
+            border: none;
+            color: var(--muted2);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-clear-key:hover {
+            color: var(--danger);
+        }
+
+        .ai-messages {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 520px;
+            overflow-y: auto;
+        }
+
+        .msg {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .msg-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .msg-avatar.ai {
+            background: var(--accent);
+            color: #FFFFFF;
+        }
+
+        .msg-avatar.user {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .msg-content {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 14px 18px;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .msg.ai .msg-content {
+            background: var(--surface2);
+            border-left: 3px solid var(--accent2);
+        }
+
+        .ai-input-bar {
+            border-top: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            background: var(--surface);
+        }
+
+        .ai-input-bar textarea {
+            flex: 1;
+            min-height: 42px;
+        }
+
+        .btn-send {
+            background: var(--accent);
+            color: #FFFFFF;
+            border: none;
+            border-radius: 3px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-send:hover {
+            background: #142D47;
+        }
+
+        .ai-body {
+            display: none;
+            flex-direction: column;
+        }
+
+        .ai-body.visible {
+            display: flex;
+        }
+
+        .ai-empty-state {
+            padding: 60px 40px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .empty-icon {
+            font-size: 42px;
+            color: var(--border);
+            margin-bottom: 20px;
+        }
+
+        .ai-body.has-started .ai-empty-state {
+            display: none;
+        }
+
+        .ai-messages,
+        .ai-mode-pills,
+        .ai-input-bar {
+            display: none;
+        }
+
+        .ai-body.has-started .ai-messages,
+        .ai-body.has-started .ai-mode-pills,
+        .ai-body.has-started .ai-input-bar {
+            display: flex;
+        }
+
+        .ai-mode-pills {
+            padding: 0 24px 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mode-pill {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #FFFFFF;
+        }
+
+        /* FLOWCHART SECTION */
+        .ai-flowchart-section {
+            margin-top: 24px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .ai-flowchart-section.hidden {
+            display: none;
+        }
+
+        .flowchart-header {
+            padding: 16px 24px;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flowchart-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .flowchart-body {
+            padding: 32px;
+            display: flex;
+            justify-content: center;
+            background: #ffffff;
+            min-height: 200px;
+            overflow-x: auto;
+        }
+
+        .mermaid {
+            width: 100%;
+        }
+
+        .api-key-hint {
+            font-size: 12px;
+            color: var(--muted2);
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 4px 0;
+        }
+
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background: var(--muted2);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* IMPORT BANNER & GATES */
+        .import-banner,
+        .gate-warning {
+            background: #FDF6E3;
+            color: var(--warning);
+            border: 1px solid var(--warning);
+            border-radius: 4px;
+            padding: 14px 20px;
+            margin-bottom: 32px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .gate-danger {
+            background: #FDECEA;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 16px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* FIXES FOR MISSING CLASSES */
+        .hidden {
+            display: none !important;
+        }
+
+        .import-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .import-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .import-banner-dismiss {
+            background: transparent;
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .import-banner-dismiss:hover {
+            background: rgba(183, 119, 13, 0.1);
+        }
+
+        .btn-icon-danger:hover {
+            border-color: var(--danger);
+            background: #FDECEA;
+            color: var(--danger);
+        }
+
+        .conf-flag {
+            color: var(--warning);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #FFFFFF;
+            background: var(--accent);
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="wrapper">
+
+        <!-- Import Banner (shown when launched from Assessment Tool) -->
+        <div class="import-banner" id="importBanner">
+            <div class="import-banner-left">
+                <span class="import-banner-icon">✦</span>
+                <span>Assessment data imported — review pre-filled fields before proceeding.</span>
+            </div>
+            <button class="import-banner-dismiss"
+                onclick="document.getElementById('importBanner').classList.add('hidden')">Dismiss</button>
+        </div>
+
+        <div class="header">
+            <div class="label">Structured PDD Blueprint</div>
+            <h1>Think before you <em>automate.</em></h1>
+            <p class="subtitle">A structured RPA Business Analysis framework for scoping AS-IS processes and designing
+                TO-BE automation blueprints.</p>
+        </div>
+
+        <div class="project-field">
+            <label>Process Name / Automation Candidate</label>
+            <input type="text" placeholder="e.g. AP Invoice Processing, HR Onboarding, Weekly Report Gen..."
+                id="projectName">
+        </div>
+
+        <!-- TIME + SAVE BAR -->
+        <div class="meta-bar">
+            <div class="time-selector">
+                <span class="meta-label">Time box</span>
+                <div class="time-pills">
+                    <button class="time-pill" onclick="selectTime(this, '15 min')">15 min</button>
+                    <button class="time-pill" onclick="selectTime(this, '30 min')">30 min</button>
+                    <button class="time-pill" onclick="selectTime(this, '1 hour')">1 hour</button>
+                    <button class="time-pill active" onclick="selectTime(this, 'open')">Open</button>
+                </div>
+            </div>
+            <div class="save-controls">
+                <span class="meta-label">Saved Blueprints</span>
+                <div class="save-row">
+                    <select id="savedList" onchange="loadSelected()">
+                        <option value="">— load a saved blueprint —</option>
+                    </select>
+                    <button class="btn-icon" title="Save current blueprint" onclick="saveBlueprint()">💾</button>
+                    <button class="btn-icon btn-icon-danger" title="Delete selected" onclick="deleteSaved()">🗑</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="stat">
+                <span class="stat-value" id="statPhases">0/7</span>
+                <span class="stat-label">Phases Open</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="statChecks">0</span>
+                <span class="stat-label">Items Checked</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="statFields">0%</span>
+                <span class="stat-label">Fields Filled</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="statConf">—</span>
+                <span class="stat-label">Avg Confidence</span>
+            </div>
+        </div>
+
+        <div id="phases">
+
+            <!-- PHASE 1 -->
+            <div class="phase" data-phase="1">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">01</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">AS-IS Process Mapping</div>
+                        <div class="phase-desc">Map the current manual state and baseline metrics.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <ul class="checklist" id="feasibilityCheck">
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Feasibility Gate</span>
+                                Highly Rule-Based (No cognitive decisions required)
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Feasibility Gate</span>
+                                Standardized & Readable Inputs (No handwritten text or fuzzy data)
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Feasibility Gate</span>
+                                Stable UI / Mature Application Environment
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="field">
+                        <label>What is the current manual process (Step-by-step)?</label>
+                        <textarea
+                            placeholder="List the sequence of actions the human currently takes. E.g., Open email -> Download attachment -> Log into SAP -> Extract ID -> Cross reference Excel..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>What applications and systems are touched?</label>
+                        <textarea
+                            placeholder="List all software involved. E.g., Outlook, SAP GUI v7.5, Chrome, Excel. Note if any are accessed via VDI/Citrix."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Volume & Handle Time (The Metrics)</label>
+                        <textarea id="pdd_volume_metrics"
+                            placeholder="Dump raw data here. E.g., 'Currently takes 3 people 10 minutes per invoice, 500 invoices a week.' The AI will calculate the ROI later."></textarea>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 2 -->
+            <div class="phase" data-phase="2">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">02</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">Business Value & ROI</div>
+                        <div class="phase-desc">Define the financial and operational justification for automating.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <div class="field">
+                        <label>What is the primary business driver?</label>
+                        <textarea
+                            placeholder="e.g. FTE savings, reducing costly data entry errors, increasing SLA speed, scaling without hiring..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>What is the acceptable error rate / business exception tolerance?</label>
+                        <textarea id="pdd_exception_tolerance"
+                            placeholder="What percentage of cases are allowed to be kicked back to a human? (e.g., Target is 80% straight-through processing)"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Secondary benefits</label>
+                        <textarea
+                            placeholder="e.g., Compliance/Audit trail, employee satisfaction (removing boring work)."></textarea>
+                    </div>
+                    <div class="confidence-row">
+                        <span class="conf-label">Data Confidence</span>
+                        <div class="conf-slider-wrap">
+                            <input type="range" min="1" max="10" value="5" class="conf-slider"
+                                oninput="updateConfidence(this)">
+                            <span class="conf-value">5</span><span class="conf-unit">/10</span>
+                        </div>
+                        <span class="conf-flag" style="display:none;">⚠ Low confidence — need firmer metrics from SMEs
+                            before presenting ROI.</span>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 3 -->
+            <div class="phase" data-phase="3">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">03</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">Technical & Business Exceptions</div>
+                        <div class="phase-desc">Name the constraints so the bot doesn't fail in production.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <div class="field">
+                        <label>Data Sensitivity & Compliance</label>
+                        <textarea
+                            placeholder="Does this process touch PII, GDPR-regulated data, or sensitive financials? How must the data be handled?"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Hard technical constraints</label>
+                        <textarea id="pdd_tech_constraints"
+                            placeholder="e.g. Application lacks an API, strict Infosec rules around passwords, UI changes frequently, requires Citrix automation..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Known Business Exceptions</label>
+                        <textarea id="pdd_business_exceptions"
+                            placeholder="When MUST the bot stop and hand off to a human? e.g. 'If invoice amount > $10k', 'If account is locked', 'If ID does not match records'..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Out of scope (Explicit boundaries)</label>
+                        <textarea
+                            placeholder="What parts of this process are we explicitly NOT touching? e.g. 'Bot will not approve exceptions, it will only queue them.'"></textarea>
+                    </div>
+                    <div class="confidence-row">
+                        <span class="conf-label">Confidence in Exception Mapping</span>
+                        <div class="conf-slider-wrap">
+                            <input type="range" min="1" max="10" value="5" class="conf-slider"
+                                oninput="updateConfidence(this)">
+                            <span class="conf-value">5</span><span class="conf-unit">/10</span>
+                        </div>
+                        <span class="conf-flag" style="display:none;">⚠ Low confidence — schedule another SME session.
+                            Missing exceptions will break the bot.</span>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 4 -->
+            <div class="phase" data-phase="4">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">04</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">Dependency Mapping</div>
+                        <div class="phase-desc">What has to be true before dev can start?</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <div class="field">
+                        <label>Prerequisites (Access & Infrastructure)</label>
+                        <textarea
+                            placeholder="e.g., Need test accounts, VPN access, VDI provisioning, API keys, database access..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Stakeholders: Process Owner & SMEs</label>
+                        <textarea
+                            placeholder="Who signs off on the budget/PDD (Owner)? Who actually does the work and records the process (SME)?"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Upstream changes</label>
+                        <textarea
+                            placeholder="Are there any planned UI updates, server migrations, or business rule changes to the target apps in the next 3 months?"></textarea>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 5 -->
+            <div class="phase" data-phase="5">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">05</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">The TO-BE Automated State</div>
+                        <div class="phase-desc">Sketch the architecture of the new automated process.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <div class="field">
+                        <label>Trigger</label>
+                        <textarea
+                            placeholder="How does the bot start? e.g. Scheduled at 2 AM, triggered by API call, triggered by unread email in inbox..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>The Happy Path</label>
+                        <textarea
+                            placeholder="The core sequence the bot will take when everything goes perfectly. Keep it high level."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Human-in-the-Loop (Handoffs)</label>
+                        <textarea
+                            placeholder="Where does the human intervene? How are they notified? (e.g., Action Center, email queue)"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Final Bot Output & Artifacts</label>
+                        <textarea
+                            placeholder="What specifically does the bot leave behind? (e.g., An updated SAP record, a filed PDF, and a summary email to HR)"></textarea>
+                    </div>
+                    <div class="confidence-row">
+                        <span class="conf-label">Architecture Confidence</span>
+                        <div class="conf-slider-wrap">
+                            <input type="range" min="1" max="10" value="5" class="conf-slider"
+                                oninput="updateConfidence(this)">
+                            <span class="conf-value">5</span><span class="conf-unit">/10</span>
+                        </div>
+                        <span class="conf-flag" style="display:none;">⚠ Low confidence — review this TO-BE flow with a
+                            lead developer.</span>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 6 -->
+            <div class="phase" data-phase="6">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">06</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">Edge Case Audit</div>
+                        <div class="phase-desc">Challenge the design before presenting it.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <ul class="checklist" id="selfCheck">
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Input Data Quality</span>
+                                Is the input data 100% structured, or are we relying on fuzzy OCR/free-text?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">System Latency</span>
+                                Have we accounted for slow load times in legacy applications?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Credential Management</span>
+                                Is there a secure way to store passwords (e.g. CyberArk, Orchestrator Assets)?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Scale Check</span>
+                                If volume 10x's tomorrow, does this architecture hold up?
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="field" style="margin-top:16px;">
+                        <label>The Worst-Case Scenario</label>
+                        <textarea
+                            placeholder="What happens if the target system goes down mid-transaction? How does the bot recover or rollback?"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Unmapped / Custom Edge Cases</label>
+                        <textarea
+                            placeholder="List any weird, unique exceptions that don't fit in the standard checks (e.g., 'Every 3rd Tuesday the server reboots at 3 PM')."></textarea>
+                    </div>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+            <!-- PHASE 7 -->
+            <div class="phase" data-phase="7">
+                <div class="phase-header" onclick="togglePhase(this)">
+                    <div class="phase-number">07</div>
+                    <div class="phase-title-group">
+                        <div class="phase-title">PDD Readiness Gate</div>
+                        <div class="phase-desc">Final QA check before developer handoff.</div>
+                    </div>
+                    <div class="phase-toggle">+</div>
+                </div>
+                <div class="phase-body">
+                    <ul class="checklist" id="complianceCheck">
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">AS-IS Complete</span>
+                                Are all AS-IS steps documented with no "magic" missing steps?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">ROI Quantified</span>
+                                Is the business value explicitly clear to a non-technical stakeholder?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Exceptions Mapped</span>
+                                Are both Business and System Exceptions clearly defined?
+                            </div>
+                        </li>
+                        <li onclick="toggleCheck(this)">
+                            <div class="check-box"></div>
+                            <div class="check-text">
+                                <span class="check-label">Trigger Defined</span>
+                                Is the bot schedule or trigger mechanism finalized?
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="phase-divider"></div>
+            </div>
+
+        </div>
+
+        <!-- NEXT STEP HOOK -->
+        <div class="hook-section">
+            <div class="hook-label">The PM Move</div>
+            <div class="hook-title">Next Action</div>
+            <p style="color: var(--muted); font-size: 14px; margin-bottom: 16px; line-height: 1.6;">Don't let the
+                document stall. What specific thing should happen next to move this pipeline forward?</p>
+            <textarea
+                placeholder="e.g. 'SME Sign-off required by Thursday', 'Schedule Dev Handoff call', 'Request test environment credentials from IT'..."></textarea>
+        </div>
+
+        <!-- AI REVIEWER -->
+        <div class="ai-section">
+            <div class="ai-header">
+                <div class="ai-header-left">
+                    <div class="ai-dot"></div>
+                    <div>
+                        <div class="ai-title">AI BA Lead Review <span id="proxyBadge" class="status-badge">Proxy</span></div>
+                        <div class="ai-subtitle">Evaluates PDD logic · Calculates ROI · Scores Stakeholder Value</div>
+                    </div>
+                </div>
+                <button class="btn-ai-start" id="startReviewBtn" onclick="startReview()">Review Blueprint →</button>
+            </div>
+            <div class="api-key-bar hidden" id="apiKeyBar" style="position: relative;">
+                <span class="api-key-label">Manual API Key (Fallback)</span>
+                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." spellcheck="false" autocomplete="off">
+                <button class="btn-clear-key" onclick="clearApiKey()" title="Clear manual key">×</button>
+                <span class="api-key-hint">Enter your own key only if the demo key is exhausted.</span>
+            </div>
+
+            <div class="ai-body" id="aiBody">
+                <div class="ai-empty-state" id="aiEmptyState">
+                    <div class="empty-icon">◎</div>
+                    Click <strong style="color:var(--accent)">Review Blueprint</strong> to send your notes to the
+                    AI.<br>
+                    It will read the scope, challenge weak spots, calculate ROI from your raw metrics, and provide a
+                    Stakeholder Value Score.
+                </div>
+
+                <div class="ai-messages" id="aiMessages"></div>
+
+                <div class="ai-mode-pills" id="modePills">
+                    <button class="mode-pill"
+                        onclick="quickPrompt('Based on my metrics, calculate the estimated ROI (Hours saved/FTEs unlocked) and provide a Stakeholder Value Score (1-10).')">Calculate
+                        ROI & Score</button>
+                    <button class="mode-pill"
+                        onclick="quickPrompt('What business or technical exceptions am I likely missing based on the applications I listed?')">Find
+                        Missing Exceptions</button>
+                    <button class="mode-pill"
+                        onclick="quickPrompt('Is this process too complex for standard RPA? Should we introduce a Human-in-the-Loop?')">Challenge
+                        Feasibility</button>
+                    <button class="mode-pill"
+                        onclick="quickPrompt('Draft a 3-paragraph Executive Summary for this PDD suitable for a business sponsor.')">Draft
+                        Exec Summary</button>
+                </div>
+
+                <div class="ai-input-bar" id="aiInputBar">
+                    <textarea id="aiInput" placeholder="Ask the BA Lead a question..." rows="1"
+                        onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendMessage()}"
+                        oninput="this.style.height='42px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+                    <button class="btn-send" id="sendBtn" onclick="sendMessage()">↑</button>
+                </div>
+                <div id="proxy-fallback-msg" class="hidden"
+                    style="padding: 10px 24px; font-size: 12px; color: var(--danger); text-align: center; background: var(--surface2);">
+                    Demo key exhausted or failed. Please <a href="#"
+                        onclick="document.getElementById('apiKeyBar').classList.remove('hidden'); return false;"
+                        style="color: var(--accent); font-weight: 600;">provide your own API key</a> to continue.
+                </div>
+            </div>
+        </div>
+
+        <!-- AI FLOWCHART VISUALIZER -->
+        <div class="ai-flowchart-section hidden" id="flowchartSection">
+            <div class="flowchart-header">
+                <div class="flowchart-title">
+                    <span style="font-size: 18px;">📊</span> Process Flow Visualization
+                </div>
+                <div class="api-key-hint">Auto-generated from your blueprint notes</div>
+            </div>
+            <div class="flowchart-body" id="mermaidContainer">
+                <!-- Mermaid diagram will be rendered here -->
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="exportBlueprint()">Export Markdown PDD</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear & Reset</button>
+        </div>
+
+    </div>
+
+    <div class="footer-credit">Built by Tutuianu Joshua · 2026</div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ── Core UI ──────────────────────────────────────────────
+        function togglePhase(header) {
+            const phase = header.closest('.phase');
+            phase.classList.toggle('open');
+            updateStats();
+        }
+
+        function toggleCheck(li) {
+            li.classList.toggle('checked');
+            updateStats();
+        }
+
+        function updateStats() {
+            const open = document.querySelectorAll('.phase.open').length;
+            const checked = document.querySelectorAll('.checklist li.checked').length;
+            const allFields = document.querySelectorAll('textarea, input[type="text"]');
+            let filled = 0;
+            allFields.forEach(f => { if (f.value.trim().length > 0) filled++; });
+            const pct = Math.round((filled / allFields.length) * 100);
+
+            const sliders = document.querySelectorAll('.conf-slider');
+            let confTotal = 0;
+            sliders.forEach(s => confTotal += parseInt(s.value));
+            const avgConf = sliders.length ? Math.round(confTotal / sliders.length * 10) / 10 : null;
+
+            const totalPhases = document.querySelectorAll('.phase').length;
+            document.getElementById('statPhases').textContent = open + '/' + totalPhases;
+            document.getElementById('statChecks').textContent = checked;
+            document.getElementById('statFields').textContent = pct + '%';
+            document.getElementById('statConf').textContent = avgConf !== null ? avgConf + '/10' : '—';
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        function updateConfidence(slider) {
+            const val = parseInt(slider.value);
+            slider.nextElementSibling.textContent = val;
+            const flag = slider.closest('.confidence-row').querySelector('.conf-flag');
+            flag.style.display = val < 7 ? 'block' : 'none';
+            updateStats();
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // Markdown Export
+        function exportBlueprint() {
+            const project = document.getElementById('projectName').value || 'Untitled Process';
+            let out = `# Process Design Document (PDD)\n\n**Process Name:** ${project}\n**Date:** ${new Date().toLocaleDateString()}\n\n`;
+            const phaseLabels = ['AS-IS Process Mapping', 'Business Value & ROI', 'Technical & Business Exceptions', 'Dependency Mapping', 'The TO-BE Automated State', 'Edge Case Audit', 'PDD Readiness Gate'];
+
+            document.querySelectorAll('.phase').forEach((phase, i) => {
+                out += `## ${phaseLabels[i]}\n\n`;
+                phase.querySelectorAll('textarea, input[type="text"]').forEach(f => {
+                    const label = f.closest('.field')?.querySelector('label')?.textContent || '';
+                    const val = f.value.trim();
+                    if (val) out += `### ${label}\n${val}\n\n`;
+                });
+                const checkedItems = phase.querySelectorAll('.checklist li.checked .check-text');
+                if (checkedItems.length > 0) {
+                    out += `### Verified Items\n`;
+                    checkedItems.forEach(c => {
+                        out += `- [x] ${c.textContent.trim().replace(/\s+/g, ' ')}\n`;
+                    });
+                    out += `\n`;
+                }
+            });
+
+            const hook = document.querySelector('.hook-section textarea').value.trim();
+            if (hook) out += `## Next Actions\n${hook}\n\n`;
+
+            // NEW: Injecting the AI Assessment
+            const aiResponses = conversationHistory.filter(msg => msg.role === 'model');
+            if (aiResponses.length > 0) {
+                out += `## AI BA Lead Assessment & ROI\n\n`;
+                aiResponses.forEach(msg => {
+                    out += `${msg.content}\n\n---\n\n`;
+                });
+            }
+
+            // Check if there is a mermaid diagram and add it
+            const lastAIResponse = aiResponses[aiResponses.length - 1]?.content || '';
+            const mermaidMatch = lastAIResponse.match(/```mermaid([\s\S]*?)```/);
+            if (mermaidMatch) {
+                out += `## Process Flowchart (Mermaid)\n\n\`\`\`mermaid\n${mermaidMatch[1].trim()}\n\`\`\`\n\n`;
+            }
+
+            const blob = new Blob([out], { type: 'text/markdown' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `PDD_${project.replace(/\s+/g, '_').toLowerCase()}.md`;
+            a.click();
+            showToast('Markdown PDD exported ✓');
+        }
+
+        function clearAll() {
+            if (!confirm('Clear everything and start fresh?')) return;
+            document.querySelectorAll('textarea, input[type="text"]').forEach(f => f.value = '');
+            document.querySelectorAll('.checklist li').forEach(li => li.classList.remove('checked'));
+            document.querySelectorAll('.phase').forEach(p => p.classList.remove('open'));
+            conversationHistory = [];
+            document.getElementById('aiMessages').innerHTML = '';
+            document.getElementById('aiBody').classList.remove('visible', 'has-started');
+            document.getElementById('startReviewBtn').textContent = 'Review Blueprint →';
+            document.getElementById('flowchartSection').classList.add('hidden');
+            document.getElementById('mermaidContainer').innerHTML = '';
+            updateStats();
+            showToast('Reset complete.');
+        }
+
+        // ── Blueprint Snapshot ───────────────────────────────────
+        function getBlueprintSnapshot() {
+            const project = document.getElementById('projectName').value.trim() || 'Untitled Process';
+            const phaseLabels = ['AS-IS Process Mapping', 'Business Value & ROI', 'Technical & Business Exceptions', 'Dependency Mapping', 'The TO-BE Automated State', 'Edge Case Audit', 'PDD Readiness Gate'];
+            let snapshot = `PROCESS: ${project}\n\n`;
+
+            document.querySelectorAll('.phase').forEach((phase, i) => {
+                let phaseContent = '';
+                phase.querySelectorAll('textarea, input[type="text"]').forEach(f => {
+                    const label = f.closest('.field')?.querySelector('label')?.textContent?.trim() || '';
+                    const val = f.value.trim();
+                    if (val) phaseContent += `  ${label}:\n  ${val}\n\n`;
+                });
+                const checked = [];
+                phase.querySelectorAll('.checklist li.checked .check-text').forEach(c => {
+                    checked.push(c.textContent.trim().replace(/\s+/g, ' '));
+                });
+                const slider = phase.querySelector('.conf-slider');
+                const confidence = slider ? `  Confidence score: ${slider.value}/10\n` : '';
+                if (phaseContent || checked.length) {
+                    snapshot += `── ${phaseLabels[i] || 'Phase ' + (i + 1)} ──\n`;
+                    snapshot += phaseContent;
+                    if (checked.length) snapshot += `  Checked items: ${checked.join(' | ')}\n`;
+                    snapshot += confidence;
+                    snapshot += '\n';
+                }
+            });
+
+            const hook = document.querySelector('.hook-section textarea').value.trim();
+            if (hook) snapshot += `── NEXT ACTION ──\n${hook}\n`;
+
+            return snapshot;
+        }
+
+        // ── AI Chat (GEMINI IMPLEMENTATION) ──────────────────────
+        let conversationHistory = [];
+        let isThinking = false;
+
+        // --- CONFIGURATION ---
+        // Replace this with your deployed Cloudflare Worker URL
+        const PROXY_URL = 'https://nameless-sky-595c.joshuatutuianu128.workers.dev/';
+        // ---------------------
+
+        const SYSTEM_PROMPT = `You are a Senior RPA Business Analyst Lead reviewing an automation candidate blueprint. You evaluate process design with the rigor required for enterprise-grade automation (UiPath, Blue Prism, etc.) and B2B consulting standards.
+
+Your job is to:
+1. Evaluate the Feasibility Gate items in Phase 1. If 'Highly Rule-Based', 'Standardized & Readable Inputs', or 'Stable UI' are NOT explicitly listed as checked in the data, you must aggressively challenge the viability of this automation before proceeding.
+2. Actively look for missing business exceptions, undefined system dependencies (especially around Data Sensitivity/Compliance), and unquantified metrics.
+3. Read any raw volume/time data in the AS-IS phase and automatically calculate an estimated ROI (Hours saved, FTE capacity unlocked). If data is missing, request it.
+4. Push back on scope creep. If a step sounds too complex or cognitive for standard RPA, suggest keeping a Human-in-the-Loop.
+5. At the end of every review, output a "Stakeholder Value Score" (1-10) evaluating how clearly this process aligns with executive priorities (cost reduction, risk mitigation, scalability). Justify the score in two sentences.
+6. Format responses using Markdown (bolding, headers) for readability. Be direct, professional, and uncompromising on quality.
+7. CRITICAL: Whenever you review a process or when asked, you MUST generate a Mermaid.js flowchart code block (using \`\`\`mermaid) representing the process flow. Use 'graph TD' (top-down) for the layout. Include the Happy Path and use rhombuses for Decision Points (Exceptions).`;
+
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }
+        });
+
+        async function handleMermaidFlow(text) {
+            const mermaidMatch = text.match(/```mermaid([\s\S]*?)```/);
+            if (mermaidMatch && mermaidMatch[1]) {
+                const code = mermaidMatch[1].trim();
+                const container = document.getElementById('mermaidContainer');
+                const section = document.getElementById('flowchartSection');
+
+                section.classList.remove('hidden');
+                container.innerHTML = `<pre class="mermaid">${code}</pre>`;
+
+                try {
+                    await mermaid.run({
+                        nodes: container.querySelectorAll('.mermaid')
+                    });
+                } catch (e) {
+                    console.error("Mermaid error:", e);
+                    container.innerHTML = `<div style="color:var(--danger); font-size:12px;">Flowchart rendering failed. Review raw Mermaid code in chat.</div>`;
+                }
+            }
+        }
+
+        function formatAIResponse(text) {
+            if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+                return DOMPurify.sanitize(marked.parse(text));
+            }
+            return text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        }
+
+        function addMessage(role, content, isLoading = false) {
+            const msgs = document.getElementById('aiMessages');
+            const div = document.createElement('div');
+            div.className = `msg ${role}`;
+
+            let contentHtml = '';
+            if (isLoading) {
+                contentHtml = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            } else if (role === 'ai') {
+                contentHtml = formatAIResponse(content);
+            } else {
+                const escapeEl = document.createElement('div');
+                escapeEl.textContent = content;
+                contentHtml = escapeEl.innerHTML.replace(/\n/g, '<br>');
+            }
+
+            div.innerHTML = `
+                <div class="msg-avatar ${role}">${role === 'ai' ? 'AI' : 'You'}</div>
+                <div class="msg-content">${contentHtml}</div>`;
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+            return div;
+        }
+
+        async function callGemini(userMessage) {
+            const manualApiKey = document.getElementById('apiKeyInput').value.trim();
+            const useProxy = !manualApiKey;
+
+            if (useProxy && (!PROXY_URL || PROXY_URL.includes('your-worker-name'))) {
+                document.getElementById('apiKeyBar').classList.remove('hidden');
+                showToast('Please configure the Proxy URL or provide an API Key.');
+                isThinking = false;
+                return;
+            }
+
+            // Push the current user message to our generic history
+            conversationHistory.push({ role: 'user', content: userMessage });
+
+            const loadingMsg = addMessage('ai', '', true);
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('startReviewBtn').disabled = true;
+
+            try {
+                // Map generic history to Gemini's expected JSON structure
+                const geminiHistory = conversationHistory.map(msg => ({
+                    role: msg.role,
+                    parts: [{ text: msg.content }]
+                }));
+
+                const endpoint = useProxy
+                    ? PROXY_URL
+                    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${manualApiKey}`;
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        system_instruction: {
+                            parts: [{ text: SYSTEM_PROMPT }]
+                        },
+                        contents: geminiHistory,
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 8000
+                        }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    loadingMsg.querySelector('.msg-content').innerHTML = `<em>Error: ${data.error.message}</em>`;
+                    if (useProxy) document.getElementById('proxy-fallback-msg').classList.remove('hidden');
+                    if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') conversationHistory.pop();
+                } else {
+                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+                    loadingMsg.querySelector('.msg-content').innerHTML = formatAIResponse(reply);
+                    // Push the successful AI response back to our history array
+                    conversationHistory.push({ role: 'model', content: reply });
+
+                    // Render Mermaid if present
+                    handleMermaidFlow(reply);
+                    document.getElementById('proxy-fallback-msg').classList.add('hidden');
+                }
+
+            } catch (err) {
+                loadingMsg.querySelector('.msg-content').innerHTML = '<em>Connection failed. The demo key might be exhausted.</em>';
+                if (useProxy) document.getElementById('proxy-fallback-msg').classList.remove('hidden');
+                if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') conversationHistory.pop();
+            }
+
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('startReviewBtn').disabled = false;
+            document.getElementById('aiMessages').scrollTop = document.getElementById('aiMessages').scrollHeight;
+            isThinking = false;
+        }
+
+        function toggleManualKey() {
+            const bar = document.getElementById('apiKeyBar');
+            bar.classList.toggle('hidden');
+        }
+
+        function clearApiKey() {
+            document.getElementById('apiKeyInput').value = '';
+            localStorage.removeItem('gemini_api_key');
+            if (typeof updateProxyStatus === 'function') updateProxyStatus();
+            showToast('Manual key cleared. Proxy active.');
+        }
+
+        async function startReview() {
+            const snapshot = getBlueprintSnapshot();
+            const hasContent = snapshot.replace(/PROCESS:.*\n/, '').trim().length > 20;
+
+            if (!hasContent) {
+                showToast('Fill in at least a few fields first!');
+                return;
+            }
+
+            document.getElementById('aiBody').classList.add('visible', 'has-started');
+            document.getElementById('startReviewBtn').textContent = 'Re-Review ↺';
+
+            conversationHistory = [];
+
+            const firstMessage = `Here is my current RPA blueprint. Please review it as a Lead BA. Challenge feasibility if gates are missed, calculate ROI, and score the stakeholder value.\n\n${snapshot}`;
+
+            addMessage('user', 'Submitting blueprint for BA Lead review...');
+            await callGemini(firstMessage);
+        }
+
+        async function sendMessage() {
+            if (isThinking) return;
+            const input = document.getElementById('aiInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            isThinking = true;
+            input.value = '';
+            input.style.height = '42px';
+            addMessage('user', msg);
+            await callGemini(msg);
+        }
+
+        function quickPrompt(text) {
+            if (isThinking) return;
+            document.getElementById('aiInput').value = text;
+            sendMessage();
+        }
+
+        // ── Time Selector ────────────────────────────────────────
+        let selectedTime = 'open';
+
+        function selectTime(btn, val) {
+            document.querySelectorAll('.time-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            selectedTime = val;
+        }
+
+        // ── Save / Load ──────────────────────────────────────────
+        const STORAGE_KEY = 'rpa_blueprints_v2';
+
+        function getAllSaved() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+            catch { return {}; }
+        }
+
+        function refreshSavedList() {
+            const saved = getAllSaved();
+            const select = document.getElementById('savedList');
+            const current = select.value;
+            select.innerHTML = '<option value="">— load a saved blueprint —</option>';
+            Object.keys(saved).sort((a, b) => saved[b].ts - saved[a].ts).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                const d = new Date(saved[key].ts);
+                opt.textContent = `${key}  (${d.toLocaleDateString()})`;
+                select.appendChild(opt);
+            });
+            if (current && saved[current]) select.value = current;
+        }
+
+        function captureState() {
+            const state = {
+                projectName: document.getElementById('projectName').value,
+                time: selectedTime,
+                fields: [],
+                checks: [],
+                sliders: [],
+                hook: document.querySelector('.hook-section textarea').value,
+                ts: Date.now()
+            };
+            document.querySelectorAll('.phase textarea, .phase input[type="text"]').forEach((f, i) => {
+                state.fields.push(f.value);
+            });
+            document.querySelectorAll('.checklist li').forEach(li => {
+                state.checks.push(li.classList.contains('checked'));
+            });
+            document.querySelectorAll('.conf-slider').forEach(s => {
+                state.sliders.push(s.value);
+            });
+            return state;
+        }
+
+        function applyState(state) {
+            document.getElementById('projectName').value = state.projectName || '';
+
+            // time pill
+            document.querySelectorAll('.time-pill').forEach(p => {
+                p.classList.toggle('active', p.textContent.toLowerCase().replace(' ', '') === (state.time || 'open').toLowerCase().replace(' ', ''));
+            });
+            selectedTime = state.time || 'open';
+
+            const fields = document.querySelectorAll('.phase textarea, .phase input[type="text"]');
+            (state.fields || []).forEach((v, i) => { if (fields[i]) fields[i].value = v; });
+
+            const checks = document.querySelectorAll('.checklist li');
+            (state.checks || []).forEach((c, i) => {
+                if (checks[i]) checks[i].classList.toggle('checked', c);
+            });
+
+            const sliders = document.querySelectorAll('.conf-slider');
+            (state.sliders || []).forEach((v, i) => {
+                if (sliders[i]) {
+                    sliders[i].value = v;
+                    sliders[i].nextElementSibling.textContent = v;
+                    const flag = sliders[i].closest('.confidence-row').querySelector('.conf-flag');
+                    if (flag) flag.style.display = parseInt(v) < 7 ? 'block' : 'none';
+                }
+            });
+
+            const hookTA = document.querySelector('.hook-section textarea');
+            if (hookTA) hookTA.value = state.hook || '';
+
+            updateStats();
+        }
+
+        function saveBlueprint() {
+            const name = document.getElementById('projectName').value.trim();
+            if (!name) { showToast('Add a Process Name first.'); return; }
+            const saved = getAllSaved();
+            if (saved[name] && !confirm(`Overwrite "${name}"?`)) return;
+            saved[name] = captureState();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            refreshSavedList();
+            document.getElementById('savedList').value = name;
+            showToast(`Saved: ${name} ✓`);
+        }
+
+        function loadSelected() {
+            const key = document.getElementById('savedList').value;
+            if (!key) return;
+            const saved = getAllSaved();
+            if (!saved[key]) return;
+            if (document.querySelector('.phase textarea, .phase input[type="text"]') &&
+                [...document.querySelectorAll('.phase textarea, .phase input[type="text"]')].some(f => f.value.trim())) {
+                if (!confirm('Load this blueprint? Unsaved changes will be lost.')) {
+                    document.getElementById('savedList').value = '';
+                    return;
+                }
+            }
+            applyState(saved[key]);
+            showToast(`Loaded: ${key}`);
+        }
+
+        function deleteSaved() {
+            const key = document.getElementById('savedList').value;
+            if (!key) { showToast('Select a blueprint to delete.'); return; }
+            if (!confirm(`Delete "${key}"?`)) return;
+            const saved = getAllSaved();
+            delete saved[key];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+            refreshSavedList();
+            showToast(`Deleted: ${key}`);
+        }
+
+        // ── Init ─────────────────────────────────────────────────
+        document.querySelectorAll('textarea, input[type="text"]').forEach(f => {
+            f.addEventListener('input', updateStats);
+        });
+
+        refreshSavedList();
+        updateStats();
+
+        const savedKey = localStorage.getItem('gemini_api_key');
+        if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+
+        function updateProxyStatus() {
+            const hasManual = document.getElementById('apiKeyInput').value.trim().length > 0;
+            const badge = document.getElementById('proxyBadge');
+            if (badge) {
+                badge.textContent = hasManual ? 'Manual Key' : 'Proxy Active';
+                badge.style.background = hasManual ? 'var(--warning)' : 'var(--accent)';
+            }
+        }
+
+        document.getElementById('apiKeyInput').addEventListener('input', e => {
+            localStorage.setItem('gemini_api_key', e.target.value.trim());
+            updateProxyStatus();
+        });
+
+        // Initialize status
+        updateProxyStatus();
+
+        // ── URL Parameter Import ──────────────────────────────────
+        (function importFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has('process') && !params.has('ease') && !params.has('benefit')) return;
+
+            // Helper: set a textarea/input value and trigger stats update
+            function fill(el, value) {
+                if (el && value !== undefined && value !== null && String(value).trim() !== '') {
+                    el.value = String(value).trim();
+                }
+            }
+
+            // Process name
+            fill(document.getElementById('projectName'), params.get('process'));
+
+            // Build the Volume & Handle Time narrative from raw values
+            const freq = params.get('freq') || '';
+            const volume = params.get('volume') || '';
+            const aht = params.get('aht') || '';
+            const bandwidth = params.get('bandwidth') || '';
+            const apps = params.get('apps') || '';
+            const steps = params.get('steps') || '';
+            const thin = params.get('thin_client') || '';
+            const ocr = params.get('ocr') || '';
+            const ease = params.get('ease') || '';
+            const benefit = params.get('benefit') || '';
+            const exceptions = params.get('exceptions') || '';
+            const context = params.get('context') || '';
+
+            let metricsText = '';
+            if (freq) metricsText += `Frequency: ${freq}. `;
+            if (volume) metricsText += `Volume per cycle: ${volume} transactions. `;
+            if (aht) metricsText += `Average Handle Time: ${aht} min. `;
+            if (bandwidth) metricsText += `Estimated bandwidth freed: ${bandwidth} man-hours/year. `;
+            if (apps) metricsText += `Applications used: ${apps}. `;
+            if (steps) metricsText += `Process steps: ${steps}. `;
+            if (thin && thin !== 'no') metricsText += `Thin client / VDI in use: Yes. `;
+            if (ocr && ocr !== 'no') metricsText += `OCR required: Yes. `;
+            if (ease) metricsText += `\nAssessment Scores — Ease of Implementation: ${ease}%. `;
+            if (benefit) metricsText += `Benefit/Suitability: ${benefit}%.`;
+            fill(document.getElementById('pdd_volume_metrics'), metricsText.trim());
+
+            // Exception tolerance (Phase 2)
+            if (exceptions) {
+                fill(document.getElementById('pdd_exception_tolerance'),
+                    `Assessment reported ${exceptions}% exception rate (cases where the process could not be completed).`);
+            }
+
+            // Technical constraints (Phase 3) — thin client / OCR flags
+            let techText = '';
+            if (thin === 'yes') techText += 'Applications accessed via virtual machine / Thin Client (increased implementation complexity). ';
+            if (ocr === 'yes') techText += 'OCR required for scanned/image-based input data. ';
+            if (techText) fill(document.getElementById('pdd_tech_constraints'), techText.trim());
+
+            // Contextual notes from assessment → Known Business Exceptions (Phase 3)
+            if (context) {
+                fill(document.getElementById('pdd_business_exceptions'),
+                    `Notes from Process Assessment:\n${context}`);
+            }
+
+            // Show import banner
+            document.getElementById('importBanner').style.display = 'flex';
+
+            // Refresh stats after pre-fill
+            updateStats();
+        })();
+    </script>
+</body>
+
+</html>
