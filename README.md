@@ -97,4 +97,4 @@ MIT — free to use, modify, and deploy, including within an organisation. See `
 
 ---
 
-*Built by Josh | RPA BA Portfolio | [GitHub](https://github.com/joshdeadbody)*
+*Built by Joshua Tutuianu | RPA BA Portfolio | [GitHub](https://github.com/joshdeadbody)*
