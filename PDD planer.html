@@ -998,6 +998,90 @@
             margin-left: 8px;
             vertical-align: middle;
         }
+        /* SWITCH COMPONENT */
+        .switch-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 16px;
+            border-left: 1px solid var(--border);
+            padding-left: 16px;
+        }
+
+        .switch {
+            position: relative;
+            display: flex;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            margin: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #D0CEC9;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #FFFFFF;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent2);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        /* CONFIG BAR */
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 12px;
+            width: 100%;
+            align-items: flex-end;
+        }
+
+        .config-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .config-field label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .config-field input {
+            font-size: 13px !important;
+            padding: 8px 12px !important;
+        }
     </style>
 </head>
 
@@ -1410,14 +1494,34 @@
                         <div class="ai-title">AI BA Lead Review <span id="proxyBadge" class="status-badge">Proxy</span></div>
                         <div class="ai-subtitle">Evaluates PDD logic · Calculates ROI · Scores Stakeholder Value</div>
                     </div>
+                    <div class="switch-wrap">
+                        <label for="keyToggle" class="meta-label" style="margin-bottom:0; font-size:10px; cursor:pointer;">Custom Key</label>
+                        <label class="switch">
+                            <input type="checkbox" id="keyToggle" onchange="toggleManualKey()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
                 </div>
                 <button class="btn-ai-start" id="startReviewBtn" onclick="startReview()">Review Blueprint →</button>
             </div>
-            <div class="api-key-bar hidden" id="apiKeyBar" style="position: relative;">
-                <span class="api-key-label">Manual API Key (Fallback)</span>
-                <input type="password" id="apiKeyInput" placeholder="AIzaSy..." spellcheck="false" autocomplete="off">
-                <button class="btn-clear-key" onclick="clearApiKey()" title="Clear manual key">×</button>
-                <span class="api-key-hint">Enter your own key only if the demo key is exhausted.</span>
+            <div class="api-key-bar hidden" id="apiKeyBar">
+                <div class="config-grid">
+                    <div class="config-field">
+                        <label>Endpoint URL (OpenAI Compatible)</label>
+                        <input type="text" id="customEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
+                    </div>
+                    <div class="config-field">
+                        <label>Manual API Key</label>
+                        <input type="password" id="apiKeyInput" placeholder="sk-..." spellcheck="false" autocomplete="off">
+                    </div>
+                    <div class="config-field">
+                        <label>Model Name</label>
+                        <input type="text" id="customModel" placeholder="gpt-4o">
+                    </div>
+                    <div class="config-field">
+                        <button class="btn-icon btn-icon-danger" onclick="clearApiKey()" title="Reset to Proxy/Clear" style="height: 35px; width: 35px;">×</button>
+                    </div>
+                </div>
             </div>
 
             <div class="ai-body" id="aiBody">
@@ -1633,12 +1737,11 @@
             return snapshot;
         }
 
-        // ── AI Chat (GEMINI IMPLEMENTATION) ──────────────────────
+        // ── AI Chat (UNIVERSAL IMPLEMENTATION) ──────────────────
         let conversationHistory = [];
         let isThinking = false;
 
         // --- CONFIGURATION ---
-        // Replace this with your deployed Cloudflare Worker URL
         const PROXY_URL = 'https://nameless-sky-595c.joshuatutuianu128.workers.dev/';
         // ---------------------
 
@@ -1713,18 +1816,21 @@ Your job is to:
             return div;
         }
 
-        async function callGemini(userMessage) {
+        async function callAI(userMessage) {
             const manualApiKey = document.getElementById('apiKeyInput').value.trim();
-            const useProxy = !manualApiKey;
+            const customUrl = document.getElementById('customEndpoint').value.trim();
+            const customModel = document.getElementById('customModel').value.trim();
+            
+            const useProxy = !document.getElementById('keyToggle').checked;
 
             if (useProxy && (!PROXY_URL || PROXY_URL.includes('your-worker-name'))) {
                 document.getElementById('apiKeyBar').classList.remove('hidden');
+                document.getElementById('keyToggle').checked = true;
                 showToast('Please configure the Proxy URL or provide an API Key.');
                 isThinking = false;
                 return;
             }
 
-            // Push the current user message to our generic history
             conversationHistory.push({ role: 'user', content: userMessage });
 
             const loadingMsg = addMessage('ai', '', true);
@@ -1732,54 +1838,71 @@ Your job is to:
             document.getElementById('startReviewBtn').disabled = true;
 
             try {
-                // Map generic history to Gemini's expected JSON structure
-                const geminiHistory = conversationHistory.map(msg => ({
-                    role: msg.role,
-                    parts: [{ text: msg.content }]
-                }));
+                let endpoint, body;
 
-                const endpoint = useProxy
-                    ? PROXY_URL
-                    : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${manualApiKey}`;
+                if (useProxy) {
+                    // Proxy mode (Gemini format)
+                    endpoint = PROXY_URL;
+                    const geminiHistory = conversationHistory.map(msg => ({
+                        role: msg.role === 'ai' ? 'model' : msg.role,
+                        parts: [{ text: msg.content }]
+                    }));
+                    body = {
+                        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                        contents: geminiHistory,
+                        generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+                    };
+                } else {
+                    // Manual mode (OpenAI-compatible format)
+                    endpoint = customUrl || 'https://api.openai.com/v1/chat/completions';
+                    const messages = [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                        ...conversationHistory.map(msg => ({
+                            role: msg.role === 'ai' ? 'assistant' : msg.role,
+                            content: msg.content
+                        }))
+                    ];
+                    body = {
+                        model: customModel || 'gpt-4o',
+                        messages: messages,
+                        temperature: 0.7
+                    };
+                }
 
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        ...(useProxy ? {} : { 'Authorization': `Bearer ${manualApiKey}` })
                     },
-                    body: JSON.stringify({
-                        system_instruction: {
-                            parts: [{ text: SYSTEM_PROMPT }]
-                        },
-                        contents: geminiHistory,
-                        generationConfig: {
-                            temperature: 0.7,
-                            maxOutputTokens: 8000
-                        }
-                    })
+                    body: JSON.stringify(body)
                 });
 
                 const data = await response.json();
 
                 if (data.error) {
-                    loadingMsg.querySelector('.msg-content').innerHTML = `<em>Error: ${data.error.message}</em>`;
+                    loadingMsg.querySelector('.msg-content').innerHTML = `<em>Error: ${data.error.message || JSON.stringify(data.error)}</em>`;
                     if (useProxy) document.getElementById('proxy-fallback-msg').classList.remove('hidden');
-                    if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') conversationHistory.pop();
+                    if (conversationHistory.length > 0) conversationHistory.pop();
                 } else {
-                    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+                    let reply = '';
+                    if (useProxy) {
+                        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+                    } else {
+                        reply = data.choices?.[0]?.message?.content || data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+                    }
+                    
                     loadingMsg.querySelector('.msg-content').innerHTML = formatAIResponse(reply);
-                    // Push the successful AI response back to our history array
-                    conversationHistory.push({ role: 'model', content: reply });
-
-                    // Render Mermaid if present
+                    conversationHistory.push({ role: 'ai', content: reply });
                     handleMermaidFlow(reply);
                     document.getElementById('proxy-fallback-msg').classList.add('hidden');
                 }
 
             } catch (err) {
-                loadingMsg.querySelector('.msg-content').innerHTML = '<em>Connection failed. The demo key might be exhausted.</em>';
+                console.error(err);
+                loadingMsg.querySelector('.msg-content').innerHTML = '<em>Connection failed. Check your console or network settings.</em>';
                 if (useProxy) document.getElementById('proxy-fallback-msg').classList.remove('hidden');
-                if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'user') conversationHistory.pop();
+                if (conversationHistory.length > 0) conversationHistory.pop();
             }
 
             document.getElementById('sendBtn').disabled = false;
@@ -1790,14 +1913,21 @@ Your job is to:
 
         function toggleManualKey() {
             const bar = document.getElementById('apiKeyBar');
-            bar.classList.toggle('hidden');
+            const isChecked = document.getElementById('keyToggle').checked;
+            bar.classList.toggle('hidden', !isChecked);
+            updateProxyStatus();
         }
 
         function clearApiKey() {
+            if(!confirm('Reset custom configuration to defaults?')) return;
             document.getElementById('apiKeyInput').value = '';
+            document.getElementById('customEndpoint').value = '';
+            document.getElementById('customModel').value = '';
             localStorage.removeItem('gemini_api_key');
-            if (typeof updateProxyStatus === 'function') updateProxyStatus();
-            showToast('Manual key cleared. Proxy active.');
+            localStorage.removeItem('custom_endpoint');
+            localStorage.removeItem('custom_model');
+            updateProxyStatus();
+            showToast('Configuration cleared.');
         }
 
         async function startReview() {
@@ -1817,7 +1947,7 @@ Your job is to:
             const firstMessage = `Here is my current RPA blueprint. Please review it as a Lead BA. Challenge feasibility if gates are missed, calculate ROI, and score the stakeholder value.\n\n${snapshot}`;
 
             addMessage('user', 'Submitting blueprint for BA Lead review...');
-            await callGemini(firstMessage);
+            await callAI(firstMessage);
         }
 
         async function sendMessage() {
@@ -1830,7 +1960,7 @@ Your job is to:
             input.value = '';
             input.style.height = '42px';
             addMessage('user', msg);
-            await callGemini(msg);
+            await callAI(msg);
         }
 
         function quickPrompt(text) {
@@ -1974,20 +2104,28 @@ Your job is to:
         updateStats();
 
         const savedKey = localStorage.getItem('gemini_api_key');
+        const savedUrl = localStorage.getItem('custom_endpoint');
+        const savedModel = localStorage.getItem('custom_model');
+
         if (savedKey) document.getElementById('apiKeyInput').value = savedKey;
+        if (savedUrl) document.getElementById('customEndpoint').value = savedUrl;
+        if (savedModel) document.getElementById('customModel').value = savedModel;
 
         function updateProxyStatus() {
-            const hasManual = document.getElementById('apiKeyInput').value.trim().length > 0;
+            const isManual = document.getElementById('keyToggle').checked;
             const badge = document.getElementById('proxyBadge');
             if (badge) {
-                badge.textContent = hasManual ? 'Manual Key' : 'Proxy Active';
-                badge.style.background = hasManual ? 'var(--warning)' : 'var(--accent)';
+                badge.textContent = isManual ? 'Custom API' : 'Proxy Active';
+                badge.style.background = isManual ? 'var(--warning)' : 'var(--accent)';
             }
         }
 
-        document.getElementById('apiKeyInput').addEventListener('input', e => {
-            localStorage.setItem('gemini_api_key', e.target.value.trim());
-            updateProxyStatus();
+        ['apiKeyInput', 'customEndpoint', 'customModel'].forEach(id => {
+            document.getElementById(id).addEventListener('input', e => {
+                const key = id === 'apiKeyInput' ? 'gemini_api_key' : id === 'customEndpoint' ? 'custom_endpoint' : 'custom_model';
+                localStorage.setItem(key, e.target.value.trim());
+                updateProxyStatus();
+            });
         });
 
         // Initialize status
