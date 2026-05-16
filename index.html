@@ -341,7 +341,10 @@
         }
 
         .dashboard-pdd-wrap.visible {
-            display: block;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         /* ── Buttons ── */
@@ -389,6 +392,26 @@
 
         .btn-pdd:hover {
             background: #B57830;
+        }
+
+        .btn-agent {
+            background: var(--navy);
+            color: #fff;
+            border: none;
+            padding: 0.65rem 1.375rem;
+            border-radius: 3px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            font-family: var(--font);
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-agent:hover {
+            background: var(--navy-dark);
         }
 
         /* ── AI Section ── */
@@ -856,9 +879,13 @@
             <div class="metric-desc">man hours / year</div>
         </div>
         <div class="dashboard-pdd-wrap" id="pdd-btn-wrap">
-            <button type="button" class="btn-pdd" id="btn_send_pdd" onclick="sendToPDDPlanner()">
+            <button type="button" class="btn-pdd" id="btn_send_pdd" onclick="sendToRPA()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                Send to PDD Planner
+                Send to RPA PDD Planner
+            </button>
+            <button type="button" class="btn-agent" id="btn_send_agent" onclick="sendToAgent()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                Send to Agentic Planner
             </button>
         </div>
     </div>
@@ -1039,8 +1066,8 @@
     form.addEventListener('input', calculate);
     form.addEventListener('change', calculate);
 
-    // ── Send to PDD Planner ───────────────────────────────────────
-    function sendToPDDPlanner() {
+    // ── Send to PDD / Agent Planner ───────────────────────────────────────
+    function getAssessmentParams() {
         const processName  = document.getElementById('q_process_name').value.trim();
         const easeRaw      = parseFloat(resEase.innerText) || 0;
         const benefitRaw   = parseFloat(resBenefit.innerText) || 0;
@@ -1077,7 +1104,7 @@
         const volumeRaw     = document.getElementById('q_volume').value;
         const ahtRaw        = document.getElementById('q_aht').value;
 
-        const params = new URLSearchParams({
+        return new URLSearchParams({
             process:     processName,
             ease:        easeRaw.toFixed(1),
             benefit:     benefitRaw.toFixed(1),
@@ -1093,8 +1120,16 @@
             ocr:         ocrText,
             context:     context
         });
+    }
 
+    function sendToRPA() {
+        const params = getAssessmentParams();
         window.open('PDD planer.html?' + params.toString(), '_blank');
+    }
+
+    function sendToAgent() {
+        const params = getAssessmentParams();
+        window.open('Agentic Automation Planner.html?' + params.toString(), '_blank');
     }
 
     // ── AI Integration ────────────────────────────────────────────
