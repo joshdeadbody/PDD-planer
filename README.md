@@ -1,6 +1,6 @@
-# RPA BA Toolkit — Process Assessment & PDD Planner
+# Automation BA Toolkit — Process Assessment, RPA PDD & Agentic Planners
 
-Two linked browser-based tools that replicate the BA workflow for RPA scoping. Built as a portfolio piece demonstrating practical RPA Business Analysis methodology — from initial automation suitability assessment through to a structured Process Discovery Document.
+A suite of three linked browser-based tools that replicate the Business Analysis workflow for both classic RPA and probabilistic AI agents. Built as a portfolio piece demonstrating practical Business Analysis methodology — from initial automation suitability assessment through to structured design documentation.
 
 No installation. No account. Runs entirely in the browser.
 
@@ -10,25 +10,25 @@ No installation. No account. Runs entirely in the browser.
 
 ## The Workflow
 
-The two tools are designed to be used in sequence:
+The tools are designed to be used in sequence, branching based on the solution type:
 
 1. Open the **Process Assessment Tool** (`index.html`) — the default page at the link above
 2. Complete the suitability assessment for your process
-3. Click **"Send to PDD Planner"** — 13 parameters pass automatically via URL
-4. The **PDD Planner** opens with all relevant fields pre-filled
-5. Complete the remaining discovery phases and export your PDD
+3. Choose your pipeline: Click **"Send to RPA PDD Planner"** or **"Send to Agentic Planner"** — parameters pass automatically via URL
+4. The selected Planner opens with all relevant context pre-filled
+5. Complete the remaining discovery phases and export your Markdown document
 
 ---
 
 ## Tool 1 — Process Assessment Tool
 
-Based on UiPath's automation suitability scoring model. Determines whether a process is worth automating before any discovery work begins.
+Based on UiPath's automation suitability scoring model. Determines whether a process is worth automating before any discovery work begins, and helps decide if the solution requires rigid RPA or an autonomous agent.
 
 **Eliminatory gates** — hard stops that end the assessment immediately if triggered:
 - Non-digital or heavily physical input types
-- Process relies on human judgment rather than defined rules
+- Process relies entirely on subjective human judgment
 
-**Postponement gates** — flags that don't eliminate but flag the process as not yet ready:
+**Postponement gates** — flags that don't eliminate but mark the process as not yet ready:
 - Process or supporting applications are actively changing or unstable
 
 **Weighted scoring** — once past the gates, the tool scores across:
@@ -38,15 +38,13 @@ Based on UiPath's automation suitability scoring model. Determines whether a pro
 - FTE bandwidth calculation running in parallel
 - Multipliers applied automatically for thin client environments (1.6×) and OCR dependency (1.2×)
 
-**Notes field** — every question has a free-text notes field. These are read by the AI reviewer, which flags risks that scores alone don't capture.
-
-**AI reviewer** — reads both the hard scores and the notes, then provides a structured assessment of automation viability, flagged risks, and recommended next steps.
+**AI reviewer** — reads both the hard scores and the free-text notes, providing a structured assessment of viability, flagged risks, and recommended next steps before you choose a planner.
 
 ---
 
-## Tool 2 — PDD Planner
+## Tool 2 — Classic RPA PDD Planner
 
-Structures the full Process Discovery Document across seven phases. Receives context from the Assessment Tool automatically and pre-fills all relevant fields on load.
+Structures the Process Discovery Document for deterministic, hard-coded robots. Focuses on mapping the exact "happy path" and strict exception handling.
 
 **Phases:**
 1. AS-IS Process Mapping
@@ -57,37 +55,51 @@ Structures the full Process Discovery Document across seven phases. Receives con
 6. Edge Case Audit
 7. PDD Readiness Gate
 
-**Additional features:**
-- AI reviewer with conversational follow-up per phase
-- Auto-generated Mermaid.js process flowchart rendered directly in the tool
-- Markdown export of the completed PDD
+**AI Reviewer Persona:** Acts as a Feasibility Challenger, checking for missing exceptions, unstructured data risks, and generating a Mermaid.js Top-Down flowchart of the mapped process.
+
+---
+
+## Tool 3 — Agentic Automation Planner (AAP)
+
+Structures the design document for probabilistic AI agents. Shifts the BA focus away from step-by-step instructions toward mapping objectives, tool boundaries, and risk mitigation.
+
+**Phases:**
+1. Mission & Context (Objective States, Context Payloads, KPIs)
+2. The Toolkit (Data Sensitivity, Tool Scopes, Blacklists)
+3. Guardrails & Boundaries (Behavioral Rules, Limitations)
+4. Autonomy & Handoffs (Confidence Thresholds, Escalation Triggers)
+5. Identity, Access & Governance (Execution Scopes, Blast Radius, Compliance)
+6. Verification Artifacts & Audit Gates (Deterministic Proof of Work)
+7. Readiness Gate
+
+**AI Reviewer Persona:** Acts as a Risk Assessor. Aggressively challenges weak guardrails, broad permissions, and lack of deterministic verification. Generates Mermaid.js State Machine diagrams or Capability Maps to visualize boundaries.
 
 ---
 
 ## AI & API Setup
 
-Both tools use a **proxy by default** — no API key required. This is intentional: the proxy ensures the AI reviewer works out of the box for anyone accessing the tool, including recruiters or practitioners who may not have their own key or whose organisation policy prevents them entering one.
+All three tools use a **proxy by default** — no API key required. This ensures the AI reviewer works out of the box for anyone accessing the tool, including recruiters or practitioners who may not have their own key.
 
 **Using your own key and model:**
 
-Both tools support any OpenAI-compatible endpoint. In the API settings panel:
+The tools support any OpenAI-compatible endpoint. In the API settings panel:
 - Paste your **Base URL** (e.g. `https://api.openai.com/v1`, `https://openrouter.ai/api/v1`, or any compatible endpoint)
 - Paste your **API Key**
 - Specify the **model name** (e.g. `gpt-4o`, `o1`, `gemini-2.5-pro`, `mistral-large`)
 
 This means the tools are compatible with OpenAI, OpenRouter, Anthropic (via compatible wrappers), locally hosted models via Ollama, or any provider following the OpenAI API standard.
 
-**Note on model choice:** The default proxy uses Gemini 2.5 Flash — fast and cost-efficient for a portfolio demo. For production use with complex, interdependent processes, a reasoning model (e.g. `o1`, `gemini-2.5-pro`) will produce more reliable outputs where multiple dependencies need to be weighed simultaneously.
+**Note on model choice:** The default proxy uses Gemini 2.5 Flash — fast and cost-efficient. For production use with complex agentic guardrails or deeply interdependent RPA processes, a reasoning model (e.g. `o1`, `gemini-2.5-pro`) will produce more rigorous architectural challenges.
 
 ---
 
 ## Methodology Notes
 
-**Assessment Tool** — the scoring model and gate logic are based on UiPath's published automation suitability framework, adapted for browser-based use with additional weighting for thin client and OCR scenarios that are commonly underestimated during scoping.
+**Assessment Tool** — the scoring model and gate logic are based on industry-standard suitability frameworks, adapted for browser-based use with additional weighting for thin client and OCR scenarios that are commonly underestimated during scoping.
 
-**PDD vs SDD** — this toolkit covers the PDD layer only: what the user does now, what the business problem is, and what the automated process should achieve. Solution design (how the bot will technically implement the solution) is intentionally out of scope and belongs in a separate SDD produced by the developer or solutions architect.
+**Deterministic vs. Probabilistic Scoping** — The split between the two planners reflects the reality of modern automation. If a process relies on stable UIs and structured data, the RPA PDD Planner ensures tight, step-by-step governance. If a process relies on unstructured data and dynamic routing, the Agentic Planner ensures the blast radius is contained and the agent's output is highly auditable.
 
-**URL-based handoff** — the Assessment Tool passes parameters to the PDD Planner via URL rather than localStorage. This is deliberate: it keeps the tools stateless, independently usable, and easy to share or bookmark at any point in the workflow.
+**URL-based handoff** — the Assessment Tool passes parameters to the Planners via URL rather than localStorage. This keeps the tools stateless, independently usable, and easy to share or bookmark at any point in the workflow.
 
 ---
 
@@ -97,4 +109,4 @@ MIT — free to use, modify, and deploy, including within an organisation. See `
 
 ---
 
-*Built by Joshua Tutuianu | RPA BA Portfolio | [GitHub](https://github.com/joshdeadbody)*
+*Built by Joshua Tutuianu | RPA & Agentic BA Portfolio | [GitHub](https://github.com/joshdeadbody)*
