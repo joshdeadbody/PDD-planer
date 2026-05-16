@@ -1,6 +1,6 @@
-# Automation BA Toolkit — Process Assessment, RPA PDD & Agentic Planners
+# Automation BA Toolkit — Assessment, Scoping & Business Case Suite
 
-A suite of three linked browser-based tools that replicate the Business Analysis workflow for both classic RPA and probabilistic AI agents. Built as a portfolio piece demonstrating practical Business Analysis methodology — from initial automation suitability assessment through to structured design documentation.
+A suite of four linked browser-based tools that replicate the complete Business Analysis workflow for both classic RPA and probabilistic AI agents. Built as a portfolio piece demonstrating practical Business Analysis methodology — from initial automation suitability assessment through to structured design documentation and financial justification.
 
 No installation. No account. Runs entirely in the browser.
 
@@ -10,12 +10,12 @@ No installation. No account. Runs entirely in the browser.
 
 ## The Workflow
 
-The tools are designed to be used in sequence, branching based on the solution type:
+The tools are designed to be used in sequence, branching based on the project phase and solution type:
 
 1. Open the **Process Assessment Tool** (`index.html`) — the default page at the link above
 2. Complete the suitability assessment for your process
-3. Choose your pipeline: Click **"Send to RPA PDD Planner"** or **"Send to Agentic Planner"** — parameters pass automatically via URL
-4. The selected Planner opens with all relevant context pre-filled
+3. Choose your pipeline: Click **"Send to RPA PDD Planner"**, **"Send to Agentic Planner"**, or **"Build Business Case"** — parameters pass automatically via URL
+4. The selected Planner or Builder opens with all relevant context pre-filled
 5. Complete the remaining discovery phases and export your Markdown document
 
 ---
@@ -76,9 +76,24 @@ Structures the design document for probabilistic AI agents. Shifts the BA focus 
 
 ---
 
+## Tool 4 — Business Case Builder
+
+Structures the financial justification and executive sign-off for automation initiatives. Translates technical scoping into business value to secure budget approval.
+
+**Core Features & Phases:**
+- **Live ROI Dashboard:** Auto-calculates Total Cost, Annual Benefit, 12-Month ROI, and Payback Period.
+- **The Financial Model:** Input dev costs and infra expenses against FTE savings, visualized via a Chart.js cumulative cash flow graph.
+- **Strategic Benefits:** Maps qualitative outcomes (Productivity, Quality, Employee Experience).
+- **Risks & Mitigation:** Pre-filled with exceptions and boundaries from the assessment phase.
+- **Recommendation & Sign-Off:** Final executive verdict and narrative.
+
+**AI Reviewer Persona:** Acts as a strict CFO / Financial Approver. Challenges underestimated costs, overly optimistic savings, and scores the likelihood of budget approval.
+
+---
+
 ## AI & API Setup
 
-All three tools use a **proxy by default** — no API key required. This ensures the AI reviewer works out of the box for anyone accessing the tool, including recruiters or practitioners who may not have their own key.
+All four tools use a **proxy by default** — no API key required. This ensures the AI reviewer works out of the box for anyone accessing the tool, including recruiters or practitioners who may not have their own key.
 
 **Using your own key and model:**
 
@@ -99,7 +114,9 @@ This means the tools are compatible with OpenAI, OpenRouter, Anthropic (via comp
 
 **Deterministic vs. Probabilistic Scoping** — The split between the two planners reflects the reality of modern automation. If a process relies on stable UIs and structured data, the RPA PDD Planner ensures tight, step-by-step governance. If a process relies on unstructured data and dynamic routing, the Agentic Planner ensures the blast radius is contained and the agent's output is highly auditable.
 
-**URL-based handoff** — the Assessment Tool passes parameters to the Planners via URL rather than localStorage. This keeps the tools stateless, independently usable, and easy to share or bookmark at any point in the workflow.
+**The Business Case Handoff** — The addition of the Business Case Builder bridges the gap between technical Business Analysis and executive sponsorship. It ensures that before a line of code is written, the initiative makes financial sense and has a clear payback period.
+
+**URL-based handoff** — the tools pass parameters to each other via URL rather than localStorage. This keeps them stateless, independently usable, and easy to share or bookmark at any point in the workflow.
 
 ---
 
