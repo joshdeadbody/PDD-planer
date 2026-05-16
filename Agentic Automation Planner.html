@@ -1178,6 +1178,10 @@
                         <label>Context Payload</label>
                         <textarea placeholder="What baseline information and input variables does the agent receive when triggered?"></textarea>
                     </div>
+                    <div class="field">
+                        <label>Success Metrics & KPIs</label>
+                        <textarea placeholder="Explicitly list quantitative metrics that define success (e.g., 'Accuracy > 99%', 'Latency < 30s', 'Manual rework < 1%')."></textarea>
+                    </div>
                 </div>
                 <div class="phase-divider"></div>
             </div>
@@ -1193,6 +1197,10 @@
                     <div class="phase-toggle">+</div>
                 </div>
                 <div class="phase-body">
+                    <div class="field">
+                        <label>Data Sources & Sensitivity</label>
+                        <textarea placeholder="Detail where input data originates and its classification (e.g., 'Zendesk API - Contains PII and Financial Data')."></textarea>
+                    </div>
                     <div class="field">
                         <label>Tool Scope</label>
                         <textarea placeholder="List specific APIs, databases, and execution environments the agent can use."></textarea>
@@ -1232,6 +1240,10 @@
                     <div class="field">
                         <label>Negative Boundaries</label>
                         <textarea placeholder="Explicit constraints, e.g., 'Never approve a transaction over $500' or 'Never modify user roles'."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Known Limitations & Edge Cases</label>
+                        <textarea placeholder="Proactively identify scenarios the agent is not designed to handle (e.g., 'Does not support multi-currency', 'Fails on images over 5MB')."></textarea>
                     </div>
                 </div>
                 <div class="phase-divider"></div>
@@ -1274,6 +1286,10 @@
                     <div class="field">
                         <label>Execution Identity & Scopes</label>
                         <textarea placeholder="Specific service account used, explicit Read-Only vs Read/Write privileges."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Regulatory & Compliance Constraints</label>
+                        <textarea placeholder="List relevant external regulations or internal policies (e.g., 'GDPR data processing agreement', 'PCI DSS - no credit card storage')."></textarea>
                     </div>
                     <div class="field">
                         <label>Blast Radius</label>
@@ -1866,7 +1882,7 @@ Your job is to:
         }
 
         // ── Save / Load ──────────────────────────────────────────
-        const STORAGE_KEY = 'rpa_blueprints_v2';
+        const STORAGE_KEY = 'agentic_blueprints_v1';
 
         function getAllSaved() {
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
@@ -2026,14 +2042,14 @@ Your job is to:
             // Helper: set a textarea/input value and trigger stats update
             function fill(el, value) {
                 if (el && value !== undefined && value !== null && String(value).trim() !== '') {
-                    el.value = String(value).trim();
+                    const existing = el.value.trim();
+                    el.value = existing ? `${existing}\n\n${value.trim()}` : value.trim();
                 }
             }
 
             // Process name
             fill(document.getElementById('projectName'), params.get('process'));
 
-            // Build the Volume & Handle Time narrative from raw values
             const freq = params.get('freq') || '';
             const volume = params.get('volume') || '';
             const aht = params.get('aht') || '';
@@ -2047,27 +2063,40 @@ Your job is to:
             const exceptions = params.get('exceptions') || '';
             const context = params.get('context') || '';
 
+            // 1. Success Metrics & KPIs (Phase 1, textarea 2)
             let metricsText = '';
             if (freq) metricsText += `Frequency: ${freq}. `;
             if (volume) metricsText += `Volume per cycle: ${volume} transactions. `;
             if (aht) metricsText += `Average Handle Time: ${aht} min. `;
             if (bandwidth) metricsText += `Estimated bandwidth freed: ${bandwidth} man-hours/year. `;
-            if (apps) metricsText += `Applications used: ${apps}. `;
-            if (steps) metricsText += `Process steps: ${steps}. `;
-            if (thin && thin !== 'no') metricsText += `Thin client / VDI in use: Yes. `;
-            if (ocr && ocr !== 'no') metricsText += `OCR required: Yes. `;
             if (ease) metricsText += `\nAssessment Scores — Ease of Implementation: ${ease}%. `;
             if (benefit) metricsText += `Benefit/Suitability: ${benefit}%.`;
-            
-            // Note: Since the tool has been refactored, we map these to the new "Context Payload" (Phase 1)
-            const contextEl = document.querySelectorAll('.phase[data-phase="1"] textarea')[1];
-            if (contextEl) fill(contextEl, metricsText.trim());
+            const metricsEl = document.querySelectorAll('.phase[data-phase="1"] textarea')[2];
+            if (metricsEl && metricsText) fill(metricsEl, `Imported Assessment Metrics:\n${metricsText.trim()}`);
 
-            // Contextual notes from assessment → Context Payload (Phase 1)
-            if (context) {
-                const existing = contextEl.value;
-                fill(contextEl, `${existing}\n\nNotes from Process Assessment:\n${context}`);
-            }
+            // 2. Data Sources & Sensitivity (Phase 2, textarea 0)
+            let dataSourcesText = '';
+            if (thin && thin !== 'no') dataSourcesText += `Thin client / VDI in use: Yes. `;
+            if (ocr && ocr !== 'no') dataSourcesText += `OCR required: Yes. `;
+            const dataSourcesEl = document.querySelectorAll('.phase[data-phase="2"] textarea')[0];
+            if (dataSourcesEl && dataSourcesText) fill(dataSourcesEl, `Imported Data Constraints:\n${dataSourcesText.trim()}`);
+
+            // 3. Tool Scope (Phase 2, textarea 1)
+            let toolScopeText = '';
+            if (apps) toolScopeText += `Applications used: ${apps}. `;
+            const toolScopeEl = document.querySelectorAll('.phase[data-phase="2"] textarea')[1];
+            if (toolScopeEl && toolScopeText) fill(toolScopeEl, `Imported Tooling Context:\n${toolScopeText.trim()}`);
+
+            // 4. Known Limitations & Edge Cases (Phase 3, textarea 2)
+            let limitationsText = '';
+            if (exceptions) limitationsText += `Exception rate: ${exceptions}%. `;
+            if (steps) limitationsText += `Process steps: ${steps}. `;
+            const limitationsEl = document.querySelectorAll('.phase[data-phase="3"] textarea')[2];
+            if (limitationsEl && limitationsText) fill(limitationsEl, `Imported Limitations:\n${limitationsText.trim()}`);
+
+            // 5. Context Payload (Phase 1, textarea 1)
+            const contextEl = document.querySelectorAll('.phase[data-phase="1"] textarea')[1];
+            if (contextEl && context) fill(contextEl, `Notes from Process Assessment:\n${context}`);
 
             // Show import banner
             document.getElementById('importBanner').style.display = 'flex';
