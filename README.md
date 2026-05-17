@@ -4,7 +4,7 @@ A suite of four linked browser-based tools that replicate the complete Business 
 
 No installation. No account. Runs entirely in the browser.
 
-**Live tool:** [joshdeadbody.github.io/PDD-planer](https://joshdeadbody.github.io/PDD-planer/)
+**Live tool:** [joshdeadbody.github.io/PDD-planer](https://joshdeadbody.github.io/PDD-planner/)
 
 ---
 
